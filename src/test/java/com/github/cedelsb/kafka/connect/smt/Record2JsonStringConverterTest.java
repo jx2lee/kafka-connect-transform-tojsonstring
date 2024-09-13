@@ -211,6 +211,28 @@ public class Record2JsonStringConverterTest {
     }
 
     @Test
+    public void transformRecordValue2JsonStringWithoutSchemaWithEmptyArrayListTest() {
+        // value for json format without schema
+        HashMap<String, Object> simpleValueWithoutSchema = new LinkedHashMap<>();
+        simpleValueWithoutSchema.put("emptyArrayList", new ArrayList<>());
+
+        final Map<String, Object> props = new HashMap<>();
+        props.put("json.string.field.name", "myawesomejsonstringfield");
+
+        valueSmt.configure(props);
+        final SinkRecord record = new SinkRecord(null, 0, null, null, null, simpleValueWithoutSchema, 0);
+        final SinkRecord transformedRecord = valueSmt.apply(record);
+
+        assertEquals(1, transformedRecord.valueSchema().fields().size());
+        assertEquals(Schema.STRING_SCHEMA,transformedRecord.valueSchema().field("myawesomejsonstringfield").schema());
+
+        Struct value = (Struct) transformedRecord.value();
+        String jsonString = (String) value.get("myawesomejsonstringfield");
+
+        assertEquals("{\"emptyArrayList\": []}", jsonString);
+    }
+
+    @Test
     public void transformRecordValue2JsonStringLogicalTypesDatetimeAsStringTest() {
         final Map<String, Object> props = new HashMap<>();
 
